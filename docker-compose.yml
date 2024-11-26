@@ -4,9 +4,9 @@ networks:
 
 volumes:
   prometheus_data:
-    name: prometheus_data
+    name: v44cccsg04o84s8wo480w04o_prometheus-data
   grafana_data:
-    name: grafana_data
+    name: v44cccsg04o84s8wo480w04o_grafana-data
 
 services:
   prometheus:
