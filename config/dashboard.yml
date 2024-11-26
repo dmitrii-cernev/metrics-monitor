@@ -1,0 +1,14 @@
+# Grafana Dashboard Providers configuration
+
+apiVersion: 1
+
+providers:
+  - name: "Dashboard provider"
+    orgId: 1
+    type: file
+
+    disableDeletion: false
+    updateIntervalSeconds: 10 # how often Grafana will scan for changed dashboards
+    options:
+      path: /var/lib/grafana/dashboards # path to dashboard files on disk
+      foldersFromFilesStructure: true # if true, Grafana will scan the dashboard files and create folders from the file structure

@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s # How often to scrape targets by default.
+  evaluation_interval: 15s # How often to evaluate rules by default.
+
+scrape_configs:
+  # Scrape configuration for Prometheus itself.
+  - job_name: "prometheus"
+    scrape_interval: 5s # Scrape Prometheus more frequently.
+    static_configs:
+      - targets: ["prometheus:9090"] # Replace with your Prometheus server address.
+
+  # Example job to scrape a custom application.
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["node-exporter:9100"] # Replace with your application's address.
