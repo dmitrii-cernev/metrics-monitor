@@ -4,9 +4,9 @@ networks:
 
 volumes:
   prometheus_data:
-    name: v44cccsg04o84s8wo480w04o_prometheus-data
+    name: prometheus_data
   grafana_data:
-    name: v44cccsg04o84s8wo480w04o_grafana-data
+    name: grafana_data
 
 services:
   prometheus:
@@ -14,8 +14,13 @@ services:
     container_name: prometheus
     restart: always
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - type: bind
+        source: ./config/prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+        is_directory: false
+      - type: volume
+        source: prometheus_data
+        target: /prometheus
     expose:
       - "9090"
     networks:
@@ -28,9 +33,18 @@ services:
     container_name: node-exporter
     restart: always
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
+      - type: bind
+        source: /proc
+        target: /host/proc
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /host/sys
+        read_only: true
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
     expose:
       - "9100"
     networks:
@@ -43,10 +57,21 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - ./config/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-      - ./config/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
-      - ./config/dashboard.json:/etc/grafana/provisioning/dashboards/dashboard.json
-      - grafana_data:/var/lib/grafana
+      - type: bind
+        source: ./config/datasources.yml
+        target: /etc/grafana/provisioning/datasources/datasources.yml
+        is_directory: false
+      - type: bind
+        source: ./config/dashboard.yml
+        target: /etc/grafana/provisioning/dashboards/dashboard.yml
+        is_directory: false
+      - type: bind
+        source: ./config/dashboard.json
+        target: /etc/grafana/provisioning/dashboards/dashboard.json
+        is_directory: false
+      - type: volume
+        source: grafana_data
+        target: /var/lib/grafana
     networks:
       - monitoring
     depends_on:
