@@ -82,14 +82,15 @@ services:
       - prometheus
 
   cadvisor:
-    image: gcr.io/google-containers/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
     restart: always
     volumes:
-      - '/:/rootfs:ro'
-      - '/var/run:/var/run:ro'
-      - '/sys:/sys:ro'
-      - '/var/lib/docker/:/var/lib/docker:ro'
+    - '/:/rootfs:ro'
+    - '/var/run:/var/run:ro'
+    - '/sys:/sys:ro'
+    - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    - '/var/lib/docker/:/var/lib/docker:ro'
     expose:
       - "8080"
     networks:
