@@ -87,8 +87,9 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
     restart: always
-    environment:
-      - CADVISOR_ENABLED=${CADVISOR_ENABLED:-1}
+    command:
+      - --housekeeping_interval=15s
+      - -docker_only=true
     volumes:
       - '/:/rootfs:ro'
       - '/var/run:/var/run:ro'
@@ -101,10 +102,3 @@ services:
       - monitoring
     depends_on:
       - prometheus
-    command: >
-      sh -c "if [ \"${CADVISOR_ENABLED}\" = \"1\" ]; then
-                exec /usr/bin/cadvisor --housekeeping_interval=15s -docker_only=true;
-              else
-                echo 'cAdvisor is disabled';
-                sleep infinity;
-              fi"
