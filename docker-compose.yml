@@ -87,6 +87,7 @@ services:
     restart: always
     command:
       - --housekeeping_interval=10s
+      - -docker_only=true
     volumes:
     - '/:/rootfs:ro'
     - '/var/run:/var/run:ro'
