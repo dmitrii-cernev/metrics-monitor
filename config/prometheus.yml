@@ -5,16 +5,15 @@ global:
 scrape_configs:
   # Scrape configuration for Prometheus itself.
   - job_name: "prometheus"
-    scrape_interval: 5s # Scrape Prometheus more frequently.
+    scrape_interval: 15s
     static_configs:
-      - targets: ["prometheus:9090"] # Replace with your Prometheus server address.
+      - targets: ["prometheus:9090"]
 
-  # Example job to scrape a custom application.
   - job_name: "node-exporter"
     static_configs:
-      - targets: ["node-exporter:9100"] # Replace with your application's address.
+      - targets: ["node-exporter:9100"]
 
   - job_name: "cadvisor"
-    scrape_interval: 10s
+    scrape_interval: 15s
     static_configs:
       - targets: ["cadvisor:8080"]

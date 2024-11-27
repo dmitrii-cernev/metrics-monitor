@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   monitoring:
     driver: bridge
@@ -17,7 +19,7 @@ services:
       - type: bind
         source: ./config/prometheus.yml
         target: /etc/prometheus/prometheus.yml
-        is_directory: false
+        read_only: true
       - type: volume
         source: prometheus_data
         target: /prometheus
@@ -60,19 +62,19 @@ services:
       - type: bind
         source: ./config/datasources.yml
         target: /etc/grafana/provisioning/datasources/datasources.yml
-        is_directory: false
+        read_only: true
       - type: bind
         source: ./config/dashboard.yml
         target: /etc/grafana/provisioning/dashboards/dashboard.yml
-        is_directory: false
+        read_only: true
       - type: bind
         source: ./config/dashboard-metrics.json
         target: /var/lib/grafana/dashboards/dashboard-metrics.json
-        is_directory: false
+        read_only: true
       - type: bind
         source: ./config/dashboard-docker.json
         target: /var/lib/grafana/dashboards/dashboard-docker.json
-        is_directory: false
+        read_only: true
       - type: volume
         source: grafana_data
         target: /var/lib/grafana
@@ -85,18 +87,24 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
     restart: always
-    command:
-      - --housekeeping_interval=15s
-      - -docker_only=true
+    environment:
+      - CADVISOR_ENABLED=${CADVISOR_ENABLED:-1}
     volumes:
-    - '/:/rootfs:ro'
-    - '/var/run:/var/run:ro'
-    - '/sys:/sys:ro'
-    - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    - '/var/lib/docker/:/var/lib/docker:ro'
+      - '/:/rootfs:ro'
+      - '/var/run:/var/run:ro'
+      - '/sys:/sys:ro'
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+      - '/var/lib/docker/:/var/lib/docker:ro'
     expose:
       - "8080"
     networks:
       - monitoring
     depends_on:
       - prometheus
+    command: >
+      sh -c "if [ \"${CADVISOR_ENABLED}\" = \"1\" ]; then
+                exec /usr/bin/cadvisor --housekeeping_interval=15s -docker_only=true;
+              else
+                echo 'cAdvisor is disabled';
+                sleep infinity;
+              fi"
