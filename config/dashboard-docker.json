@@ -1,274 +1,69 @@
 {
   "uid": "docker-stats",
-  "title": "Docker Container Metrics",
+  "title": "Docker Container Stats",
   "timezone": "",
-  "schemaVersion": 27,
-  "version": 2,
-  "refresh": "10s",
-  "time": {
-    "from": "now-15m",
-    "to": "now"
-  },
-  "variables": [
-    {
-      "name": "container",
-      "label": "Container",
-      "type": "query",
-      "query": {
-        "datasource": "Prometheus",
-        "expr": "label_values(container_memory_usage_bytes{image!=\"\"}, name)"
-      },
-      "current": {
-        "text": "All",
-        "value": ["$__all"]
-      },
-      "includeAll": true,
-      "multi": true
-    }
-  ],
+  "schemaVersion": 16,
+  "version": 1,
+  "refresh": "5s",
   "panels": [
     {
-      "type": "row",
-      "title": "Summary",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
-    },
-    {
-      "type": "stat",
-      "title": "Total Running Containers",
+      "title": "Container CPU Usage (%)",
+      "type": "graph",
       "id": 1,
       "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "decimals": 0
-        }
-      },
       "targets": [
         {
-          "expr": "count(container_memory_usage_bytes{image!=\"\"})",
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{image!=''}[1m])) * 100",
+          "legendFormat": "{{ name }}",
           "refId": "A"
         }
       ],
-      "gridPos": { "h": 3, "w": 6, "x": 0, "y": 1 }
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 }
     },
     {
-      "type": "stat",
-      "title": "Total CPU Usage (%)",
+      "title": "Container Memory Usage",
+      "type": "graph",
       "id": 2,
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "decimals": 2
-        }
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[1m])) * 100",
+          "expr": "container_memory_usage_bytes{image!=''}",
+          "legendFormat": "{{ name }}",
           "refId": "A"
         }
       ],
-      "gridPos": { "h": 3, "w": 6, "x": 6, "y": 1 }
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 }
     },
     {
-      "type": "stat",
-      "title": "Total Memory Usage",
+      "title": "Container Network I/O",
+      "type": "graph",
       "id": 3,
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
-          "decimals": 2
-        }
+          "unit": "Bps"
+        },
+        "overrides": []
       },
       "targets": [
         {
-          "expr": "sum(container_memory_usage_bytes{image!=\"\"})",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 3, "w": 6, "x": 12, "y": 1 }
-    },
-    {
-      "type": "stat",
-      "title": "Total Network I/O",
-      "id": 4,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "decimals": 2
-        }
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_network_receive_bytes_total{image!=\"\", interface!=\"\"}[1m]) + rate(container_network_transmit_bytes_total{image!=\"\", interface!=\"\"}[1m]))",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 3, "w": 6, "x": 18, "y": 1 }
-    },
-    {
-      "type": "row",
-      "title": "Detailed Metrics",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 }
-    },
-    {
-      "title": "Container CPU Usage (%)",
-      "type": "timeseries",
-      "id": 5,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "decimals": 2
-        }
-      },
-      "targets": [
-        {
-          "expr": "rate(container_cpu_usage_seconds_total{image!=\"\", name=~\"$container\"}[1m]) * 100",
-          "legendFormat": "{{name}}",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 }
-    },
-    {
-      "title": "Container Memory Usage",
-      "type": "timeseries",
-      "id": 6,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "decimals": 2
-        }
-      },
-      "targets": [
-        {
-          "expr": "container_memory_usage_bytes{image!=\"\", name=~\"$container\"}",
-          "legendFormat": "{{name}}",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 13 }
-    },
-    {
-      "title": "Container Network Traffic",
-      "type": "timeseries",
-      "id": 7,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "decimals": 2
-        }
-      },
-      "targets": [
-        {
-          "expr": "rate(container_network_receive_bytes_total{image!=\"\", interface!=\"\", name=~\"$container\"}[1m])",
-          "legendFormat": "{{name}} Receive",
+          "expr": "sum by (name) (rate(container_network_receive_bytes_total{image!=''}[1m]))",
+          "legendFormat": "{{ name }} Receive",
           "refId": "A"
         },
         {
-          "expr": "rate(container_network_transmit_bytes_total{image!=\"\", interface!=\"\", name=~\"$container\"}[1m])",
-          "legendFormat": "{{name}} Transmit",
+          "expr": "sum by (name) (rate(container_network_transmit_bytes_total{image!=''}[1m]))",
+          "legendFormat": "{{ name }} Transmit",
           "refId": "B"
         }
       ],
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 21 }
-    },
-    {
-      "title": "Container Disk I/O",
-      "type": "timeseries",
-      "id": 8,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "decimals": 2
-        }
-      },
-      "targets": [
-        {
-          "expr": "rate(container_fs_reads_bytes_total{image!=\"\", name=~\"$container\"}[1m])",
-          "legendFormat": "{{name}} Read",
-          "refId": "A"
-        },
-        {
-          "expr": "rate(container_fs_writes_bytes_total{image!=\"\", name=~\"$container\"}[1m])",
-          "legendFormat": "{{name}} Write",
-          "refId": "B"
-        }
-      ],
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 29 }
-    },
-    {
-      "title": "Container Memory Usage by Container",
-      "type": "bargauge",
-      "id": 9,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "decimals": 2,
-          "max": 1e9,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 500000000 },
-              { "color": "red", "value": 800000000 }
-            ]
-          }
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "showUnfilled": false,
-        "reduceOptions": {
-          "calcs": ["mean"],
-          "fields": "",
-          "values": false
-        }
-      },
-      "targets": [
-        {
-          "expr": "container_memory_usage_bytes{image!=\"\", name=~\"$container\"}",
-          "legendFormat": "{{name}}",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 37 }
-    },
-    {
-      "title": "Top 5 CPU Consuming Containers",
-      "type": "table",
-      "id": 10,
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "decimals": 2
-        }
-      },
-      "options": {
-        "showHeader": true,
-        "sortBy": [
-          {
-            "displayName": "Value",
-            "desc": true
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "topk(5, rate(container_cpu_usage_seconds_total{image!=\"\"}[1m]) * 100)",
-          "legendFormat": "{{name}}",
-          "refId": "A"
-        }
-      ],
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 43 }
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 }
     }
   ],
   "annotations": {
