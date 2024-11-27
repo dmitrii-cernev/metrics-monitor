@@ -4,8 +4,27 @@
   "timezone": "",
   "schemaVersion": 27,
   "version": 2,
-  "refresh": "5s",
+  "refresh": "30s",
   "panels": [
+    {
+      "id": 5,
+      "title": "Total Running Containers",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "count(count by (name) (container_last_seen{image!=''}))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0
+        }
+      },
+      "gridPos": { "x": 0, "y": 36, "w": 6, "h": 5 }
+    },
     {
       "id": 1,
       "title": "Container CPU Usage (%)",
@@ -123,25 +142,6 @@
         }
       },
       "gridPos": { "x": 0, "y": 27, "w": 24, "h": 9 }
-    },
-    {
-      "id": 5,
-      "title": "Total Running Containers",
-      "type": "stat",
-      "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "count(count by (name) (container_last_seen{image!=''}))",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "decimals": 0
-        }
-      },
-      "gridPos": { "x": 0, "y": 36, "w": 6, "h": 5 }
     }
   ],
   "annotations": {
