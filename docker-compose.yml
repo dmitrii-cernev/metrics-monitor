@@ -66,12 +66,32 @@ services:
         target: /etc/grafana/provisioning/dashboards/dashboard.yml
         is_directory: false
       - type: bind
-        source: ./config/dashboard.json
-        target: /var/lib/grafana/dashboards/dashboard.json
+        source: ./config/dashboard-metrics.json
+        target: /var/lib/grafana/dashboards/dashboard-metrics.json
+        is_directory: false
+      - type: bind
+        source: ./config/dashboard-docker.json
+        target: /var/lib/grafana/dashboards/dashboard-docker.json
         is_directory: false
       - type: volume
         source: grafana_data
         target: /var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:latest
+    container_name: cadvisor
+    restart: always
+    volumes:
+      - '/:/rootfs:ro'
+      - '/var/run:/var/run:ro'
+      - '/sys:/sys:ro'
+      - '/var/lib/docker/:/var/lib/docker:ro'
+    expose:
+      - "8080"
     networks:
       - monitoring
     depends_on:
